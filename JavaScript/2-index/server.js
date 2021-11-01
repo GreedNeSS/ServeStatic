@@ -92,9 +92,12 @@ http.createServer(async (req, res) => {
 		if (elemProperty.isDirectory) {
 			stream = folderIndex(filePath);
 		}
-		res.writeHead(200, { 'Content-Type': mimeType });
-		if (stream) stream.pipe(res);
-		else httpError(res, 404, 'Path is not found');
+		if (stream) {
+			res.writeHead(200, { 'Content-Type': mimeType });
+			stream.pipe(res);
+		} else {
+			httpError(res, 404, 'Path is not found');
+		}
 	} else {
 		httpError(res, 404, 'File or directory is not found');
 	}
