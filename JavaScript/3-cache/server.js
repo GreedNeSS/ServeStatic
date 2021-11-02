@@ -24,7 +24,7 @@ const cacheFile = async filePath => {
 	cache.set(key, data);
 };
 
-const cacheDirectory = (path, items) => {
+const serializeDirectory = (path, items) => {
 	const key = path.substring(STATIC_PATH_LENGTH) + '\\';
 	const files = [];
 	const folders = [];
@@ -39,20 +39,20 @@ const cacheDirectory = (path, items) => {
 	cache.set(key, result);
 };
 
-const cacheProject = async directoryPath => {
+const cacheDirectory = async directoryPath => {
 	const files = await fs.readdir(directoryPath, { withFileTypes: true });
-	cacheDirectory(directoryPath, files);
+	serializeDirectory(directoryPath, files);
 	for (const file of files) {
 		const filePath = path.join(directoryPath, file.name);
 		if (file.isDirectory()) {
-			cacheProject(filePath);
+			cacheDirectory(filePath);
 		} else {
 			cacheFile(filePath);
 		}
 	}
 };
 
-cacheProject(STATIC_PATH);
+cacheDirectory(STATIC_PATH);
 
 const httpResponse = (res, statusCode, message, headObj = null) => {
 	if (headObj) res.writeHead(statusCode, headObj);
