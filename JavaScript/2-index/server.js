@@ -54,14 +54,13 @@ const httpError = (res, statusCode, message) => {
 
 const folderIndex = path => {
 	const stream = new Readable({
-		read() {
+		async read() {
 			const files = [];
 			const folders = [];
-			fs.readdir(path, { withFileTypes: true }, (err, items) => {
-				if (err) {
-					console.log(`Can't read folder: ${path}`);
-					return;
-				}
+			try {
+				const items = await fs.promises.readdir(
+					path, { withFileTypes: true }
+				);
 				for (const item of items) {
 					if (item.isDirectory()) folders.push(`/${item.name}/`);
 					else files.push(item.name);
@@ -71,7 +70,10 @@ const folderIndex = path => {
 					.join('\n');
 				stream.push(`<h2>Directory index:</h2><ul>${list}</ul>`);
 				stream.push(null);
-			});
+			} catch (error) {
+				console.log(`Can't read folder: ${path}`);
+				return;
+			}
 		}
 	});
 	console.log(`Index: ${path}`);
